@@ -1,4 +1,4 @@
-name: pnpm build
+name: yarn build
 
 on:
   push:
@@ -31,8 +31,8 @@ jobs:
 
     - name: Build
       run: |
-        pnpm install
-        pnpm build
+        yarn
+        yarn build
     # MUST SEE: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
     # MUST SEE: ACTION URL: https://github.com/actions/upload-pages-artifact
     - name: Upload static files as artifact
