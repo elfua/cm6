@@ -1,0 +1,60 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+.editor-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+.toolbar {
+    padding: 10px;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.toolbar select, .toolbar button {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+}
+
+.editor {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+.cm-editor {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+
+.cm-editor.cm-focused {
+    outline: none;
+}
+
+.cm-scroller {
+    overflow: auto;
+}
