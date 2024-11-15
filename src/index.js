@@ -52,6 +52,17 @@ import { linter, openLintPanel } from "@codemirror/lint";
 
 import { javascript } from "@codemirror/lang-javascript"
 
+// prettier imports
+import prettier from 'prettier/standalone';
+import pluginEstree from 'prettier/plugins/estree';
+import pluginBabel from 'prettier/plugins/babel';
+import pluginTypescript from 'prettier/plugins/typescript';
+import pluginHtml from 'prettier/plugins/html';
+import pluginPostcss from 'prettier/plugins/postcss';
+import pluginJson from 'prettier/plugins/babel';
+import pluginMarkdown from 'prettier/plugins/markdown';
+import pluginYaml from 'prettier/plugins/yaml';
+
 const languageModes = {
     javascript: () => import("@codemirror/lang-javascript").then(module => module.javascript()),
     python: () => import("@codemirror/lang-python").then(module => module.python()),
@@ -102,13 +113,25 @@ const languages = {
     markdown: markdown()
 };
 
+const CM6_TO_PRETTIER_LANGS = {
+    'javascript': 'babel',
+    'css': 'postcss',
+    'json': 'json5'
+}
+
+const STORAGE_CONTENT_KEY = 'cm6_editor_content';
+const STORAGE_LANGUAGE_KEY = 'cm6_editor_language';
+const STORAGE_THEME_KEY = 'cm6_editor_theme';
 
 class CodeMirrorEditor {
     constructor() {
         this.languageSelect = document.getElementById('language-select');
         this.themeToggle = document.getElementById('theme-toggle');
-        this.currentLanguage = 'javascript';
+        this.formatBtn = document.getElementById('formatBtn');
+        this.currentLanguage = localStorage.getItem(STORAGE_LANGUAGE_KEY) || 'javascript';
         this.currentTheme = [];
+
+        this.editorText = localStorage.getItem(STORAGE_CONTENT_KEY) || "console.log(42);\n\n\n\n\n\n";
 
         this.themeConf = new Compartment();
         this.languageConf = new Compartment();
@@ -118,8 +141,12 @@ class CodeMirrorEditor {
     }
 
     async initializeEditor() {
+        // set language dropdown value when restored from localStorage state
+        if (this.languageSelect.value !== this.currentLanguage) {
+            this.languageSelect.value = this.currentLanguage;
+        }
         const startState = EditorState.create({
-            doc: 'console.log(42);\n',
+            doc: this.editorText,
             extensions: [
                 ...this.getBaseExtensions(),
                 this.languageConf.of(languages[this.currentLanguage])
@@ -190,6 +217,36 @@ class CodeMirrorEditor {
         this.themeToggle.addEventListener('change', (e) => {
             this.currentTheme = e.target.checked ? [oneDark] : [];
             this.updateTheme();
+        });
+
+        this.formatBtn.addEventListener('click', (e) => {
+            const codeBefore = this.editorView.state.doc.toString();
+
+            prettier.format(codeBefore, {
+                parser: CM6_TO_PRETTIER_LANGS[this.currentLanguage] || this.currentLanguage,
+                plugins: [pluginBabel, pluginEstree, pluginHtml, pluginJson, pluginMarkdown, pluginPostcss, pluginTypescript, pluginYaml]
+            }).then((codeBeautified) => {
+                this.editorView.dispatch(
+                    {
+                        changes: {
+                            from: 0,
+                            to: this.editorView.state.doc.length,
+                            insert: codeBeautified
+                        }
+                    }
+                )
+            })
+        });
+
+        // SAVE STATE
+        window.addEventListener('beforeunload', (event) => {
+            if (this.editorView) {
+                localStorage.setItem(STORAGE_CONTENT_KEY, this.editorView.state.doc.toString());
+                localStorage.setItem(STORAGE_LANGUAGE_KEY, this.currentLanguage);
+                // Dispose editor to free resources
+                console.log("BEFOREUNLOAD");
+                event.returnValue = null;
+            }
         });
     }
 
