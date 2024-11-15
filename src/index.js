@@ -106,16 +106,15 @@ const languages = {
     sql: sql(),
     html: html(),
     css: css(),
-    json: yaml(),
+    json: json(),
     rust: rust(),
-    yaml: json(),
+    yaml: yaml(),
     xml: xml(),
     markdown: markdown()
 };
 
 const CM6_TO_PRETTIER_LANGS = {
     'javascript': 'babel',
-    'css': 'postcss',
     'json': 'json5'
 }
 
