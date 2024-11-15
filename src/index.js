@@ -115,7 +115,6 @@ const languages = {
 
 const CM6_TO_PRETTIER_LANGS = {
     'javascript': 'babel',
-    'css': 'postcss',
     'json': 'json5'
 }
 
